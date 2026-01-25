@@ -37,6 +37,12 @@ variable "force_delete" {
   default     = true
   description = "will delete the repository even if it contains images, set to false to disable"
 }
+variable "image_tag_mutability" {
+  type        = string
+  description = "The tag mutability setting for the repository. Valid values are 'MUTABLE' and 'IMMUTABLE'."
+  default     = "IMMUTABLE"
+
+}
 variable "life_cycle_policy_days" {
   type        = number
   description = "The humber of days to hold untagged images"
