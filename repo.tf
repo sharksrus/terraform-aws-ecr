@@ -13,6 +13,6 @@ resource "aws_ecr_repository" "repo" { #tfsec:ignore:aws-ecr-repository-customer
   image_scanning_configuration {
     scan_on_push = var.scan_on_push
   }
-  image_tag_mutability = "MUTABLE" #tfsec:ignore:AWS078
+  image_tag_mutability = var.repo_mutability
   tags                 = merge(local.default_tags, var.tags, tomap({ "Name" = var.repo_name }))
 }
