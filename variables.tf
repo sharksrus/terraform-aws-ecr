@@ -13,18 +13,20 @@ variable "encryption_configuration" {
     encryption_type = string
     kms_key         = any
   })
-  description = "ECR encryption configuration"
+  description = "ECR encryption configuration. If not set, will use encryption_type variable."
   default     = null
 }
 variable "env" {
   type    = string
   default = ""
 }
-# variable "encryption_type" {
-#   type        = string
-#   description = "Type of encryption for the repository"
-#   default     = "AES256"
-# }
+
+variable "encryption_type" {
+  type        = string
+  description = "Type of encryption for the repository"
+  default     = "AES256"
+}
+
 variable "external_accounts_policy" {
   type        = bool
   description = "Set to true and added accounts to principals_pull_access"
@@ -34,6 +36,12 @@ variable "force_delete" {
   type        = bool
   default     = true
   description = "will delete the repository even if it contains images, set to false to disable"
+}
+variable "image_tag_mutability" {
+  type        = string
+  description = "The tag mutability setting for the repository. Valid values are 'MUTABLE' and 'IMMUTABLE'."
+  default     = "IMMUTABLE"
+
 }
 variable "life_cycle_policy_days" {
   type        = number
@@ -68,4 +76,16 @@ variable "technicalcontact" {
   type        = string
   description = "Repository Technical Contact Email"
   default     = "me@example.com"
+}
+
+variable "principals_pull_access" {
+  type        = list(string)
+  description = "List of AWS principal ARNs that should have pull access to the repository"
+  default     = []
+}
+
+variable "tags" {
+  type        = map(string)
+  description = "Additional tags to apply to the ECR repository"
+  default     = {}
 }
