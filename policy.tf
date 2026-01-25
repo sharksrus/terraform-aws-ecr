@@ -25,6 +25,45 @@ data "aws_iam_policy_document" "repo_policy" {
       ]
     }
   }
+
+  dynamic "statement" {
+    for_each = length(var.principals_pull_access) > 0 ? [1] : []
+    content {
+      sid    = "ExternalPullAccess"
+      effect = "Allow"
+      principals {
+        type        = "AWS"
+        identifiers = var.principals_pull_access
+      }
+
+      actions = [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:BatchGetImage",
+        "ecr:DescribeImages",
+        "ecr:GetDownloadUrlForLayer",
+      ]
+    }
+  }
+
+  statement {
+    sid    = "LambdaPullAccess"
+    effect = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+
+    actions = [
+      "ecr:BatchGetImage",
+      "ecr:GetDownloadUrlForLayer",
+    ]
+
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceAccount"
+      values   = [data.aws_caller_identity.current.account_id]
+    }
+  }
 }
 
 resource "aws_ecr_lifecycle_policy" "repo_lifecycle" {
@@ -52,7 +91,7 @@ EOF
 }
 
 resource "aws_ecr_repository_policy" "policy" {
-  count      = var.external_accounts_policy ? 1 : 0
+  count      = var.external_accounts_policy || length(var.principals_pull_access) > 0 ? 1 : 0
   repository = aws_ecr_repository.repo.name
   policy     = data.aws_iam_policy_document.repo_policy.json
 
